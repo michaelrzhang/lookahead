@@ -20,7 +20,7 @@ class Lookahead(optimizer.Optimizer):
         la_steps (int): number of lookahead steps
         la_alpha (float): linear interpolation factor. 1.0 recovers the inner optimizer.
         """
-        super(LookaheadOptimizer, self).__init__(use_locking, name)
+        super(Lookahead, self).__init__(use_locking, name)
         self.optimizer = optimizer
         self._la_step = 0
         self._la_alpha = la_alpha
@@ -81,26 +81,26 @@ class Lookahead(optimizer.Optimizer):
             la_step = self._get_la_step_accumulators()
             with ops.colocate_with(la_step):
                 def update_la_step_func():
-                    ## update the la_step
+                    # update the la_step
                     return control_flow_ops.group([la_step.assign(
                         la_step + 1, use_locking=self._use_locking), ])
 
                 def pull_back_func():
-                    ## update the la_step
+                    # update the la_step
                     update_la_step = la_step.assign(
                         0, use_locking=self._use_locking)
-                    ## interpolate the variables
+                    # interpolate the variables
                     interpolation = [v.assign(
                         self.get_slot(v, "cached_params") + self._la_alpha_t * (v - self.get_slot(v, "cached_params")))
                                      for v in self._var_list]
 
-                    ## update the cached params
+                    # update the cached params
                     with ops.control_dependencies(interpolation):
                         update_cached_params = [self.get_slot(v, "cached_params").assign(updated_v) for v, updated_v in
                                                 zip(self._var_list, interpolation)]
                     return control_flow_ops.group([update_la_step, ] + interpolation + update_cached_params)
 
-                ## condition for when to pull back the params
+                # condition for when to pull back the params
                 condition = tf.greater_equal(la_step, self._total_la_steps_t)
                 update_lookahead_states = tf.cond(condition,
                                                   pull_back_func,
