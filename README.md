@@ -44,6 +44,8 @@ Neural Machine Translation: [tensor2tensor](https://github.com/tensorflow/tensor
 
 ## Additional
 
+[Slides](https://michaelrzhang.github.io/assets/lookahead_slides.pdf)
+
 If you have questions or suggestions, please feel free to open an issue. Please cite as:
 
 ```
