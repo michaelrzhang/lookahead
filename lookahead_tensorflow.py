@@ -75,7 +75,9 @@ class Lookahead(optimizer.Optimizer):
         return self.optimizer._resource_apply_sparse(grad, var, indices)
 
     def _finish(self, update_ops, name_scope):
-        inner_finish_op = self.optimizer._finish(update_ops, name_scope)
+        # fix "Duplicate node name in graph" issue
+        # inner_finish_op = self.optimizer._finish(update_ops, name_scope)
+        inner_finish_op = self.optimizer._finish(update_ops, name_scope+self.optimizer._name+'/')
 
         with ops.control_dependencies([inner_finish_op, ]):
             la_step = self._get_la_step_accumulators()
