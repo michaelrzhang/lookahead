@@ -93,7 +93,7 @@ class Lookahead(Optimizer):
             for group in self.optimizer.param_groups:
                 for p in group['params']:
                     param_state = self.state[p]
-                    p.data.mul_(self.la_alpha).add_(1.0 - self.la_alpha, param_state['cached_params'])  # crucial line
+                    p.data.mul_(self.la_alpha).add_(param_state['cached_params'], alpha=1.0 - self.la_alpha)  # crucial line
                     param_state['cached_params'].copy_(p.data)
                     if self.pullback_momentum == "pullback":
                         internal_momentum = self.optimizer.state[p]["momentum_buffer"]
